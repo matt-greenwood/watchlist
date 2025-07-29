@@ -88,6 +88,37 @@ class AuthStore {
   clearError() {
     this.error = null;
   }
+
+  // Handle 401 responses by clearing the session
+  handleUnauthorized() {
+    this.token = null;
+    this.error = 'Your session has expired. Please log in again.';
+    if (browser) {
+      localStorage.removeItem('sessionToken');
+    }
+  }
+
+  // Wrapper for API calls that handles 401 responses
+  async authenticatedFetch(url: string, options: RequestInit = {}) {
+    if (!this.token) {
+      throw new Error('No authentication token available');
+    }
+
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        'Authorization': this.token
+      }
+    });
+
+    if (response.status === 401) {
+      this.handleUnauthorized();
+      throw new Error('Authentication expired');
+    }
+
+    return response;
+  }
 }
 
 export const auth = new AuthStore();
