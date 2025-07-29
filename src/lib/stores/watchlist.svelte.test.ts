@@ -21,6 +21,8 @@ describe('WatchlistStore', () => {
     watchlistStore.watchlists = [];
     watchlistStore.isLoading = false;
     watchlistStore.error = null;
+    // Reset auth mock state
+    vi.mocked(auth).isAuthenticated = true;
   });
 
   afterEach(() => {
