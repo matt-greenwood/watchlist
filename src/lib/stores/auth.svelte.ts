@@ -1,92 +1,92 @@
 import { browser } from '$app/environment';
 
 class AuthStore {
-	token = $state<string | null>(null);
-	isAuthenticated = $derived(this.token !== null);
-	isLoading = $state(false);
-	error = $state<string | null>(null);
+  token = $state<string | null>(null);
+  isAuthenticated = $derived(this.token !== null);
+  isLoading = $state(false);
+  error = $state<string | null>(null);
 
-	constructor() {
-		// Hydrate from localStorage on client side only
-		if (browser) {
-			const storedToken = localStorage.getItem('sessionToken');
-			if (storedToken) {
-				this.token = storedToken;
-			}
-		}
-	}
+  constructor() {
+    // Hydrate from localStorage on client side only
+    if (browser) {
+      const storedToken = localStorage.getItem('sessionToken');
+      if (storedToken) {
+        this.token = storedToken;
+      }
+    }
+  }
 
-	async login(username: string, password: string) {
-		this.isLoading = true;
-		this.error = null;
+  async login(username: string, password: string) {
+    this.isLoading = true;
+    this.error = null;
 
-		try {
-			const response = await fetch('https://api.cert.tastyworks.com/sessions', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					login: username.trim(),
-					password: password.trim()
-				})
-			});
+    try {
+      const response = await fetch('https://api.cert.tastyworks.com/sessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          login: username.trim(),
+          password: password.trim()
+        })
+      });
 
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.error?.message || 'Authentication failed');
-			}
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Authentication failed');
+      }
 
-			const data = await response.json();
-			const sessionToken = data.data['session-token'];
+      const data = await response.json();
+      const sessionToken = data.data['session-token'];
 
-			if (!sessionToken) {
-				throw new Error('No session token received');
-			}
+      if (!sessionToken) {
+        throw new Error('No session token received');
+      }
 
-			this.token = sessionToken;
-			if (browser) {
-				localStorage.setItem('sessionToken', sessionToken);
-			}
+      this.token = sessionToken;
+      if (browser) {
+        localStorage.setItem('sessionToken', sessionToken);
+      }
 
-			return sessionToken;
-		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 'Login failed. Please try again.';
-			this.error = errorMessage;
-			throw new Error(errorMessage);
-		} finally {
-			this.isLoading = false;
-		}
-	}
+      return sessionToken;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Login failed. Please try again.';
+      this.error = errorMessage;
+      throw new Error(errorMessage);
+    } finally {
+      this.isLoading = false;
+    }
+  }
 
-	async logout() {
-		// If we have a token, try to invalidate it on the server
-		if (this.token) {
-			try {
-				await fetch('https://api.cert.tastyworks.com/sessions', {
-					method: 'DELETE',
-					headers: {
-						'Authorization': this.token,
-						'Content-Type': 'application/json'
-					}
-				});
-			} catch (err) {
-				// Log error but continue with local logout
-				console.warn('Failed to invalidate session on server:', err);
-			}
-		}
+  async logout() {
+    // If we have a token, try to invalidate it on the server
+    if (this.token) {
+      try {
+        await fetch('https://api.cert.tastyworks.com/sessions', {
+          method: 'DELETE',
+          headers: {
+            'Authorization': this.token,
+            'Content-Type': 'application/json'
+          }
+        });
+      } catch (err) {
+        // Log error but continue with local logout
+        console.warn('Failed to invalidate session on server:', err);
+      }
+    }
 
-		// Clear local session data
-		this.token = null;
-		this.error = null;
-		if (browser) {
-			localStorage.removeItem('sessionToken');
-		}
-	}
+    // Clear local session data
+    this.token = null;
+    this.error = null;
+    if (browser) {
+      localStorage.removeItem('sessionToken');
+    }
+  }
 
-	clearError() {
-		this.error = null;
-	}
+  clearError() {
+    this.error = null;
+  }
 }
 
 export const auth = new AuthStore();
