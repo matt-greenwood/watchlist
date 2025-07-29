@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { PUBLIC_TASTYTRADE_API_URL } from '$env/static/public';
 
 class AuthStore {
   token = $state<string | null>(null);
@@ -21,7 +22,7 @@ class AuthStore {
     this.error = null;
 
     try {
-      const response = await fetch('https://api.cert.tastyworks.com/sessions', {
+      const response = await fetch(`${PUBLIC_TASTYTRADE_API_URL}/sessions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +64,7 @@ class AuthStore {
     // If we have a token, try to invalidate it on the server
     if (this.token) {
       try {
-        await fetch('https://api.cert.tastyworks.com/sessions', {
+        await fetch(`${PUBLIC_TASTYTRADE_API_URL}/sessions`, {
           method: 'DELETE',
           headers: {
             'Authorization': this.token,
