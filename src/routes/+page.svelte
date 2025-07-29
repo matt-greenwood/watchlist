@@ -1,13 +1,19 @@
 <script lang="ts">
-  import LoginForm from '$lib/components/LoginForm.svelte';
-  import WatchlistDashboard from '$lib/components/WatchlistDashboard.svelte';
-  import { auth } from '$lib/stores/auth.svelte.js';
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import { auth } from '$lib/stores/auth.svelte.ts';
+
+  onMount(() => {
+    if (auth.isAuthenticated) {
+      goto('/dashboard');
+    } else {
+      goto('/login');
+    }
+  });
 </script>
 
-<main class="min-h-screen bg-gray-50">
-  {#if auth.isAuthenticated}
-    <WatchlistDashboard />
-  {:else}
-    <LoginForm />
-  {/if}
+<main class="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div class="text-center">
+    <h1 class="text-2xl font-semibold text-gray-900">Loading...</h1>
+  </div>
 </main>

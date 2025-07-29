@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { goto } from '$app/navigation';
 import { PUBLIC_TASTYTRADE_API_URL } from '$env/static/public';
 
 class AuthStore {
@@ -48,6 +49,7 @@ class AuthStore {
       this.token = sessionToken;
       if (browser) {
         localStorage.setItem('sessionToken', sessionToken);
+        goto('/dashboard');
       }
 
       return sessionToken;
@@ -82,6 +84,7 @@ class AuthStore {
     this.error = null;
     if (browser) {
       localStorage.removeItem('sessionToken');
+      goto('/login');
     }
   }
 
@@ -95,6 +98,7 @@ class AuthStore {
     this.error = 'Your session has expired. Please log in again.';
     if (browser) {
       localStorage.removeItem('sessionToken');
+      goto('/login');
     }
   }
 
