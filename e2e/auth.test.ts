@@ -98,13 +98,22 @@ test.describe('Authentication Flow', () => {
     await page.getByLabel('Password').fill('testpass');
     await page.getByRole('button', { name: 'Sign in' }).click();
     
+    // Mock watchlists API for dashboard
+    await page.route('**/watchlists', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ data: { items: [] } })
+      });
+    });
+    
     // Should redirect to dashboard
     await expect(page).toHaveURL('/dashboard');
-    await expect(page.getByRole('heading', { name: 'Watchlists' })).toBeVisible();
-    await expect(page.getByText('Welcome to your dashboard!')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Watchlists', level: 1 })).toBeVisible();
+    await expect(page.getByText('Your Watchlists')).toBeVisible();
   });
 
-  test('should show session token in dashboard', async ({ page }) => {
+  test('should display dashboard content after login', async ({ page }) => {
     // Set up authenticated state
     await page.goto('/login');
     await page.route('**/sessions', async route => {
@@ -119,12 +128,21 @@ test.describe('Authentication Flow', () => {
       }
     });
     
+    await page.route('**/watchlists', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ data: { items: [] } })
+      });
+    });
+    
     await page.getByLabel('Username').fill('testuser');
     await page.getByLabel('Password').fill('testpass');
     await page.getByRole('button', { name: 'Sign in' }).click();
     
     await expect(page).toHaveURL('/dashboard');
-    await expect(page.getByText(/Session token: test-token-123456789/)).toBeVisible();
+    await expect(page.getByText('Your Watchlists')).toBeVisible();
+    await expect(page.getByText('Manage and view your investment watchlists')).toBeVisible();
   });
 
   test('should complete logout flow', async ({ page }) => {
@@ -183,8 +201,17 @@ test.describe('Authentication Flow', () => {
     await page.reload();
     
     // Should still be on dashboard (token persisted)
+    // Mock watchlists for dashboard  
+    await page.route('**/watchlists', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ data: { items: [] } })
+      });
+    });
+    
     await expect(page).toHaveURL('/dashboard');
-    await expect(page.getByRole('heading', { name: 'Watchlists' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Watchlists', level: 1 })).toBeVisible();
   });
 
   test('should redirect authenticated user away from login page', async ({ page }) => {
