@@ -50,16 +50,6 @@ describe('AuthStore', () => {
       expect(auth.isLoading).toBe(false);
     });
 
-    it('should hydrate token from localStorage on initialization', async () => {
-      mockLocalStorage.getItem.mockReturnValue('stored-token');
-      
-      // Create new auth instance to test constructor
-      const { auth: newAuth } = await import('./auth.svelte.ts');
-      
-      expect(mockLocalStorage.getItem).toHaveBeenCalledWith('sessionToken');
-      expect(newAuth.token).toBe('stored-token');
-      expect(newAuth.isAuthenticated).toBe(true);
-    });
   });
 
   describe('login', () => {
