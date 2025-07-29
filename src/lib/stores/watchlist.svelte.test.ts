@@ -1,14 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { watchlistStore } from './watchlist.svelte.ts';
+import { auth } from './auth.svelte.ts';
 
 // Mock the auth store
-const mockAuth = {
-  isAuthenticated: true,
-  authenticatedFetch: vi.fn()
-};
-
 vi.mock('./auth.svelte.ts', () => ({
-  auth: mockAuth
+  auth: {
+    isAuthenticated: true,
+    authenticatedFetch: vi.fn()
+  }
 }));
 
 vi.mock('$env/static/public', () => ({
@@ -75,7 +74,7 @@ describe('WatchlistStore', () => {
 
       await watchlistStore.fetchWatchlists();
 
-      expect(mockAuth.authenticatedFetch).toHaveBeenCalledWith('https://api.test.com/watchlists');
+      expect(auth.authenticatedFetch).toHaveBeenCalledWith('https://api.test.com/watchlists');
       expect(watchlistStore.isLoading).toBe(false);
       expect(watchlistStore.error).toBe(null);
       expect(watchlistStore.watchlists).toEqual([
@@ -136,7 +135,7 @@ describe('WatchlistStore', () => {
         resolvePromise = resolve;
       });
 
-      mockAuth.authenticatedFetch.mockReturnValue(mockPromise);
+      vi.mocked(auth.authenticatedFetch).mockReturnValue(mockPromise);
 
       const fetchPromise = watchlistStore.fetchWatchlists();
 
@@ -167,7 +166,7 @@ describe('WatchlistStore', () => {
     });
 
     it('should handle network errors', async () => {
-      mockAuth.authenticatedFetch.mockRejectedValue(new Error('Network error'));
+      vi.mocked(auth.authenticatedFetch).mockRejectedValue(new Error('Network error'));
 
       await watchlistStore.fetchWatchlists();
 
@@ -177,11 +176,11 @@ describe('WatchlistStore', () => {
     });
 
     it('should not fetch when user is not authenticated', async () => {
-      mockAuth.isAuthenticated = false;
+      vi.mocked(auth).isAuthenticated = false;
 
       await watchlistStore.fetchWatchlists();
 
-      expect(mockAuth.authenticatedFetch).not.toHaveBeenCalled();
+      expect(auth.authenticatedFetch).not.toHaveBeenCalled();
       expect(watchlistStore.error).toBe('Not authenticated');
       expect(watchlistStore.isLoading).toBe(false);
     });
