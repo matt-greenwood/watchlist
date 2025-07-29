@@ -1,0 +1,261 @@
+import { test, expect } from '@playwright/test';
+
+test.describe('Authentication Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    // Clear localStorage before each test
+    await page.goto('/');
+    await page.evaluate(() => localStorage.clear());
+  });
+
+  test('should redirect unauthenticated user to login', async ({ page }) => {
+    await page.goto('/dashboard');
+    
+    // Should redirect to login page
+    await expect(page).toHaveURL('/login');
+    await expect(page.getByRole('heading', { name: 'tastytrade Watchlist' })).toBeVisible();
+  });
+
+  test('should show login form elements', async ({ page }) => {
+    await page.goto('/login');
+    
+    await expect(page.getByRole('heading', { name: 'tastytrade Watchlist' })).toBeVisible();
+    await expect(page.getByText('Sign in to your sandbox account')).toBeVisible();
+    await expect(page.getByLabel('Username')).toBeVisible();
+    await expect(page.getByLabel('Password')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
+  });
+
+  test('should show validation error for empty fields', async ({ page }) => {
+    await page.goto('/login');
+    
+    // Try to submit empty form
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    
+    await expect(page.getByText('Please enter both username and password')).toBeVisible();
+  });
+
+  test('should show loading state during login', async ({ page }) => {
+    await page.goto('/login');
+    
+    // Mock a slow API response
+    await page.route('**/sessions', async route => {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: { 'session-token': 'test-token-123' }
+        })
+      });
+    });
+    
+    await page.getByLabel('Username').fill('testuser');
+    await page.getByLabel('Password').fill('testpass');
+    
+    // Start login process
+    const submitPromise = page.getByRole('button', { name: 'Sign in' }).click();
+    
+    // Check loading state
+    await expect(page.getByRole('button', { name: 'Signing in...' })).toBeVisible();
+    await expect(page.getByRole('button')).toBeDisabled();
+    
+    await submitPromise;
+  });
+
+  test('should handle login failure', async ({ page }) => {
+    await page.goto('/login');
+    
+    // Mock failed login response
+    await page.route('**/sessions', async route => {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          error: { message: 'Invalid credentials' }
+        })
+      });
+    });
+    
+    await page.getByLabel('Username').fill('wronguser');
+    await page.getByLabel('Password').fill('wrongpass');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    
+    await expect(page.getByText('Invalid credentials')).toBeVisible();
+    await expect(page).toHaveURL('/login');
+  });
+
+  test('should complete successful login flow', async ({ page }) => {
+    await page.goto('/login');
+    
+    // Mock successful login response
+    await page.route('**/sessions', async route => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            data: { 'session-token': 'test-token-123' }
+          })
+        });
+      } else {
+        await route.continue();
+      }
+    });
+    
+    await page.getByLabel('Username').fill('testuser');
+    await page.getByLabel('Password').fill('testpass');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    
+    // Should redirect to dashboard
+    await expect(page).toHaveURL('/dashboard');
+    await expect(page.getByRole('heading', { name: 'Watchlists' })).toBeVisible();
+    await expect(page.getByText('Welcome to your dashboard!')).toBeVisible();
+  });
+
+  test('should show session token in dashboard', async ({ page }) => {
+    // Set up authenticated state
+    await page.goto('/login');
+    await page.route('**/sessions', async route => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            data: { 'session-token': 'test-token-123456789' }
+          })
+        });
+      }
+    });
+    
+    await page.getByLabel('Username').fill('testuser');
+    await page.getByLabel('Password').fill('testpass');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    
+    await expect(page).toHaveURL('/dashboard');
+    await expect(page.getByText(/Session token: test-token-123456789/)).toBeVisible();
+  });
+
+  test('should complete logout flow', async ({ page }) => {
+    // First login
+    await page.goto('/login');
+    await page.route('**/sessions', async route => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            data: { 'session-token': 'test-token-123' }
+          })
+        });
+      } else if (route.request().method() === 'DELETE') {
+        await route.fulfill({ status: 200 });
+      }
+    });
+    
+    await page.getByLabel('Username').fill('testuser');
+    await page.getByLabel('Password').fill('testpass');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    
+    await expect(page).toHaveURL('/dashboard');
+    
+    // Now logout
+    await page.getByRole('button', { name: 'Sign out' }).click();
+    
+    // Should redirect to login
+    await expect(page).toHaveURL('/login');
+    await expect(page.getByRole('heading', { name: 'tastytrade Watchlist' })).toBeVisible();
+  });
+
+  test('should persist session across page reloads', async ({ page }) => {
+    // Login first
+    await page.goto('/login');
+    await page.route('**/sessions', async route => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            data: { 'session-token': 'persistent-token-123' }
+          })
+        });
+      }
+    });
+    
+    await page.getByLabel('Username').fill('testuser');
+    await page.getByLabel('Password').fill('testpass');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    
+    await expect(page).toHaveURL('/dashboard');
+    
+    // Reload the page
+    await page.reload();
+    
+    // Should still be on dashboard (token persisted)
+    await expect(page).toHaveURL('/dashboard');
+    await expect(page.getByRole('heading', { name: 'Watchlists' })).toBeVisible();
+  });
+
+  test('should redirect authenticated user away from login page', async ({ page }) => {
+    // First login
+    await page.goto('/login');
+    await page.route('**/sessions', async route => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            data: { 'session-token': 'test-token-123' }
+          })
+        });
+      }
+    });
+    
+    await page.getByLabel('Username').fill('testuser');
+    await page.getByLabel('Password').fill('testpass');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    
+    await expect(page).toHaveURL('/dashboard');
+    
+    // Try to go back to login page
+    await page.goto('/login');
+    
+    // Should redirect back to dashboard
+    await expect(page).toHaveURL('/dashboard');
+  });
+
+  test('should handle session expiration (401 response)', async ({ page }) => {
+    // Setup: login first
+    await page.goto('/login');
+    await page.route('**/sessions', async route => {
+      if (route.request().method() === 'POST') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            data: { 'session-token': 'expires-soon-token' }
+          })
+        });
+      }
+    });
+    
+    await page.getByLabel('Username').fill('testuser');
+    await page.getByLabel('Password').fill('testpass');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    
+    await expect(page).toHaveURL('/dashboard');
+    
+    // Now simulate a future API call that returns 401 (session expired)
+    // This would happen when using auth.authenticatedFetch()
+    await page.evaluate(() => {
+      // Simulate what would happen in the auth store on 401
+      const auth = (window as any).auth || {};
+      if (auth.handleUnauthorized) {
+        auth.handleUnauthorized();
+      }
+    });
+    
+    // Should redirect to login with error message
+    await expect(page).toHaveURL('/login');
+    await expect(page.getByText('Your session has expired. Please log in again.')).toBeVisible();
+  });
+});
