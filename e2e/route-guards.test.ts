@@ -60,21 +60,48 @@ test.describe('Route Guards', () => {
       await page.goto('/');
       
       await expect(page).toHaveURL('/dashboard');
-      await expect(page.getByRole('heading', { name: 'Watchlists' })).toBeVisible();
+      // Mock watchlists API
+      await page.route('**/watchlists', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { items: [] } })
+        });
+      });
+      
+      await expect(page.getByRole('heading', { name: 'Watchlists', level: 1 })).toBeVisible();
     });
 
     test('should allow direct access to /dashboard when authenticated', async ({ page }) => {
       await page.goto('/dashboard');
       
       await expect(page).toHaveURL('/dashboard');
-      await expect(page.getByRole('heading', { name: 'Watchlists' })).toBeVisible();
+      // Mock watchlists API
+      await page.route('**/watchlists', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { items: [] } })
+        });
+      });
+      
+      await expect(page.getByRole('heading', { name: 'Watchlists', level: 1 })).toBeVisible();
     });
 
     test('should redirect /login to /dashboard when authenticated', async ({ page }) => {
       await page.goto('/login');
       
       await expect(page).toHaveURL('/dashboard');
-      await expect(page.getByRole('heading', { name: 'Watchlists' })).toBeVisible();
+      // Mock watchlists API
+      await page.route('**/watchlists', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { items: [] } })
+        });
+      });
+      
+      await expect(page.getByRole('heading', { name: 'Watchlists', level: 1 })).toBeVisible();
     });
   });
 
@@ -178,7 +205,16 @@ test.describe('Route Guards', () => {
       
       // Should still be authenticated
       await expect(page).toHaveURL('/dashboard');
-      await expect(page.getByRole('heading', { name: 'Watchlists' })).toBeVisible();
+      // Mock watchlists API
+      await page.route('**/watchlists', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { items: [] } })
+        });
+      });
+      
+      await expect(page.getByRole('heading', { name: 'Watchlists', level: 1 })).toBeVisible();
       
       // Try to access login page
       await page.goto('/login');

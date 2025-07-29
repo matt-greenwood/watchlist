@@ -221,7 +221,7 @@ test.describe('Dashboard - Watchlists', () => {
     });
     
     // Should show correct header
-    await expect(page.getByRole('heading', { name: 'Watchlists' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Watchlists', level: 1 })).toBeVisible();
     await expect(page.getByText('Your Watchlists')).toBeVisible();
     await expect(page.getByText('Manage and view your investment watchlists')).toBeVisible();
     
