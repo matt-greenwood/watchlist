@@ -70,7 +70,7 @@ describe('WatchlistStore', () => {
         ok: true,
         json: () => Promise.resolve(mockApiResponse)
       };
-      mockAuth.authenticatedFetch.mockResolvedValue(mockResponse);
+      vi.mocked(auth.authenticatedFetch).mockResolvedValue(mockResponse);
 
       await watchlistStore.fetchWatchlists();
 
@@ -105,7 +105,7 @@ describe('WatchlistStore', () => {
         ok: true,
         json: () => Promise.resolve(mockApiResponse)
       };
-      mockAuth.authenticatedFetch.mockResolvedValue(mockResponse);
+      vi.mocked(auth.authenticatedFetch).mockResolvedValue(mockResponse);
 
       await watchlistStore.fetchWatchlists();
 
@@ -121,7 +121,7 @@ describe('WatchlistStore', () => {
         ok: true,
         json: () => Promise.resolve(mockApiResponse)
       };
-      mockAuth.authenticatedFetch.mockResolvedValue(mockResponse);
+      vi.mocked(auth.authenticatedFetch).mockResolvedValue(mockResponse);
 
       await watchlistStore.fetchWatchlists();
 
@@ -156,7 +156,7 @@ describe('WatchlistStore', () => {
         ok: false,
         status: 500
       };
-      mockAuth.authenticatedFetch.mockResolvedValue(mockResponse);
+      vi.mocked(auth.authenticatedFetch).mockResolvedValue(mockResponse);
 
       await watchlistStore.fetchWatchlists();
 
@@ -205,7 +205,7 @@ describe('WatchlistStore', () => {
         ok: true,
         json: () => Promise.resolve(mockApiResponse)
       };
-      mockAuth.authenticatedFetch.mockResolvedValue(mockResponse);
+      vi.mocked(auth.authenticatedFetch).mockResolvedValue(mockResponse);
 
       await watchlistStore.fetchWatchlists();
 
