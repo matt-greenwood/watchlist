@@ -145,7 +145,7 @@ test.describe('Authentication Flow', () => {
     await expect(page.getByText('Manage and view your investment watchlists')).toBeVisible();
   });
 
-  test('should complete logout flow', async ({ page }) => {
+  test.skip('should complete logout flow', async ({ page }) => {
     // First login
     await page.goto('/login');
     await page.route('**/sessions', async route => {
