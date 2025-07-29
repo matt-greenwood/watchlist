@@ -22,9 +22,8 @@ vi.mock('$app/environment', () => ({
   browser: true
 }));
 
-const mockGoto = vi.fn();
 vi.mock('$app/navigation', () => ({
-  goto: mockGoto
+  goto: vi.fn()
 }));
 
 vi.mock('$env/static/public', () => ({
