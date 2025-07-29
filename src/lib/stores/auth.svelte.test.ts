@@ -3,17 +3,18 @@ import { auth } from './auth.svelte.ts';
 
 // Mock fetch globally
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+window.fetch = mockFetch;
 
-// Mock localStorage
+// Mock localStorage (use existing localStorage but with vi.fn() methods)
 const mockLocalStorage = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
   clear: vi.fn()
 };
-Object.defineProperty(global, 'localStorage', {
-  value: mockLocalStorage
+Object.defineProperty(window, 'localStorage', {
+  value: mockLocalStorage,
+  writable: true
 });
 
 // Mock SvelteKit modules
@@ -21,8 +22,9 @@ vi.mock('$app/environment', () => ({
   browser: true
 }));
 
+const mockGoto = vi.fn();
 vi.mock('$app/navigation', () => ({
-  goto: vi.fn()
+  goto: mockGoto
 }));
 
 vi.mock('$env/static/public', () => ({
