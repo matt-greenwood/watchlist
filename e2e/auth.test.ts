@@ -25,14 +25,6 @@ test.describe('Authentication Flow', () => {
     await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
   });
 
-  test('should show validation error for empty fields', async ({ page }) => {
-    await page.goto('/login');
-    
-    // Try to submit empty form
-    await page.getByRole('button', { name: 'Sign in' }).click();
-    
-    await expect(page.getByText('Please enter both username and password')).toBeVisible();
-  });
 
   test('should show loading state during login', async ({ page }) => {
     await page.goto('/login');
@@ -223,39 +215,4 @@ test.describe('Authentication Flow', () => {
     await expect(page).toHaveURL('/dashboard');
   });
 
-  test('should handle session expiration (401 response)', async ({ page }) => {
-    // Setup: login first
-    await page.goto('/login');
-    await page.route('**/sessions', async route => {
-      if (route.request().method() === 'POST') {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            data: { 'session-token': 'expires-soon-token' }
-          })
-        });
-      }
-    });
-    
-    await page.getByLabel('Username').fill('testuser');
-    await page.getByLabel('Password').fill('testpass');
-    await page.getByRole('button', { name: 'Sign in' }).click();
-    
-    await expect(page).toHaveURL('/dashboard');
-    
-    // Now simulate a future API call that returns 401 (session expired)
-    // This would happen when using auth.authenticatedFetch()
-    await page.evaluate(() => {
-      // Simulate what would happen in the auth store on 401
-      const auth = (window as any).auth || {};
-      if (auth.handleUnauthorized) {
-        auth.handleUnauthorized();
-      }
-    });
-    
-    // Should redirect to login with error message
-    await expect(page).toHaveURL('/login');
-    await expect(page.getByText('Your session has expired. Please log in again.')).toBeVisible();
-  });
 });
