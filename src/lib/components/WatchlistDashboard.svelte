@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { auth } from '$lib/stores/auth.svelte.js';
+  import { auth } from '$lib/stores/auth.svelte.ts';
 </script>
 
 <div class="min-h-screen bg-gray-50">
