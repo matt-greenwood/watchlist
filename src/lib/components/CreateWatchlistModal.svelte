@@ -24,6 +24,11 @@
     onClose();
   }
 
+  function handleSubmit(e: Event) {
+    e.preventDefault();
+    handleCreateWatchlist();
+  }
+
   $effect(() => {
     if (show) {
       watchlistStore.clearError();
@@ -40,7 +45,7 @@
       <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
         <h3 class="text-base font-semibold leading-6 text-gray-900">Create New Watchlist</h3>
         <div class="mt-4">
-          <form onsubmit={(e) => { e.preventDefault(); handleCreateWatchlist(); }}>
+          <form onsubmit={handleSubmit}>
             <label for="watchlist-name" class="block text-sm font-medium leading-6 text-gray-900">Name</label>
             <div class="mt-2">
               <input
