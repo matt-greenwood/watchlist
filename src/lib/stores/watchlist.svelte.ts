@@ -5,6 +5,7 @@ import type { Watchlist } from '$lib/types/Watchlist.ts';
 class WatchlistStore {
   watchlists = $state<Watchlist[]>([]);
   isLoading = $state(false);
+  isCreating = $state(false);
   error = $state<string | null>(null);
 
   async fetchWatchlists() {
@@ -40,6 +41,49 @@ class WatchlistStore {
       console.error('Error fetching watchlists:', err);
     } finally {
       this.isLoading = false;
+    }
+  }
+
+  async createWatchlist(name: string) {
+    if (!auth.isAuthenticated) {
+      this.error = 'Not authenticated';
+      return false;
+    }
+
+    if (!name.trim()) {
+      this.error = 'Watchlist name is required';
+      return false;
+    }
+
+    this.isCreating = true;
+    this.error = null;
+
+    try {
+      const response = await auth.authenticatedFetch(`${PUBLIC_TASTYTRADE_API_URL}/watchlists`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          "watchlist-entries": []
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error?.message || `Failed to create watchlist: ${response.status}`);
+      }
+
+      await this.fetchWatchlists();
+      return true;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create watchlist';
+      this.error = errorMessage;
+      console.error('Error creating watchlist:', err);
+      return false;
+    } finally {
+      this.isCreating = false;
     }
   }
 

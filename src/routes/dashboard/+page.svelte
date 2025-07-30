@@ -2,6 +2,9 @@
   import { onMount } from 'svelte';
   import { auth } from '$lib/stores/auth.svelte.ts';
   import { watchlistStore } from '$lib/stores/watchlist.svelte.ts';
+  import CreateWatchlistModal from '$lib/components/CreateWatchlistModal.svelte';
+
+  let showCreateModal = $state(false);
 
   onMount(() => {
     watchlistStore.fetchWatchlists();
@@ -13,12 +16,21 @@
     <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold text-gray-900">Watchlists</h1>
-        <button
-          onclick={() => auth.logout()}
-          class="rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
-        >
-          Sign out
-        </button>
+        <div class="flex items-center space-x-3">
+          <button
+            type="button"
+            onclick={() => showCreateModal = true}
+            class="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+          >
+            Create watchlist
+          </button>
+          <button
+            onclick={() => auth.logout()}
+            class="rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
+          >
+            Sign out
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -67,6 +79,7 @@
           <div class="mt-6">
             <button
               type="button"
+              onclick={() => showCreateModal = true}
               class="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             >
               <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -83,19 +96,10 @@
               <li>
                 <div class="px-4 py-4 sm:px-6">
                   <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                      <div class="flex-shrink-0">
-                        <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                          <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3-6h3m-6 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </div>
-                      </div>
-                      <div class="ml-4">
-                        <div class="text-sm font-medium text-gray-900">{watchlist.name}</div>
-                        <div class="text-sm text-gray-500">
-                          {watchlist.watchlistEntries.length} symbol{watchlist.watchlistEntries.length !== 1 ? 's' : ''}
-                        </div>
+                    <div>
+                      <div class="text-sm font-medium text-gray-900">{watchlist.name}</div>
+                      <div class="text-sm text-gray-500">
+                        {watchlist.watchlistEntries.length} symbol{watchlist.watchlistEntries.length !== 1 ? 's' : ''}
                       </div>
                     </div>
                     <div class="flex items-center space-x-2">
@@ -116,3 +120,5 @@
     </div>
   </main>
 </div>
+
+<CreateWatchlistModal show={showCreateModal} onClose={() => showCreateModal = false} />
