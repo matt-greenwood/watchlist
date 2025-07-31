@@ -49,7 +49,7 @@ class AuthStore {
       this.token = sessionToken;
       if (browser) {
         localStorage.setItem('sessionToken', sessionToken);
-        goto('/dashboard');
+        goto('/watchlists');
       }
 
       return sessionToken;

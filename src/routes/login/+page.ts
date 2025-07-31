@@ -6,7 +6,7 @@ export const load: PageLoad = async () => {
   if (browser) {
     const token = localStorage.getItem('sessionToken');
     if (token) {
-      throw redirect(302, '/dashboard');
+      throw redirect(302, '/watchlists');
     }
   }
   

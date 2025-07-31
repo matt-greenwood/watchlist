@@ -15,8 +15,8 @@ test.describe('Route Guards', () => {
       await expect(page.getByRole('heading', { name: 'tastytrade Watchlist' })).toBeVisible();
     });
 
-    test('should redirect /dashboard to /login when not authenticated', async ({ page }) => {
-      await page.goto('/dashboard');
+    test('should redirect /watchlists to /login when not authenticated', async ({ page }) => {
+      await page.goto('/watchlists');
       
       await expect(page).toHaveURL('/login');
       await expect(page.getByRole('heading', { name: 'tastytrade Watchlist' })).toBeVisible();
@@ -53,13 +53,13 @@ test.describe('Route Guards', () => {
       await page.getByLabel('Password').fill('testpass');
       await page.getByRole('button', { name: 'Sign in' }).click();
       
-      await expect(page).toHaveURL('/dashboard');
+      await expect(page).toHaveURL('/watchlists');
     });
 
-    test.skip('should redirect / to /dashboard when authenticated', async ({ page }) => {
+    test.skip('should redirect / to /watchlists when authenticated', async ({ page }) => {
       await page.goto('/');
       
-      await expect(page).toHaveURL('/dashboard');
+      await expect(page).toHaveURL('/watchlists');
       // Mock watchlists API
       await page.route('**/watchlists', async (route) => {
         await route.fulfill({
@@ -72,10 +72,10 @@ test.describe('Route Guards', () => {
       await expect(page.getByRole('heading', { name: 'Watchlists', level: 1 })).toBeVisible();
     });
 
-    test('should allow direct access to /dashboard when authenticated', async ({ page }) => {
-      await page.goto('/dashboard');
+    test('should allow direct access to /watchlists when authenticated', async ({ page }) => {
+      await page.goto('/watchlists');
       
-      await expect(page).toHaveURL('/dashboard');
+      await expect(page).toHaveURL('/watchlists');
       // Mock watchlists API
       await page.route('**/watchlists', async (route) => {
         await route.fulfill({
@@ -88,10 +88,10 @@ test.describe('Route Guards', () => {
       await expect(page.getByRole('heading', { name: 'Watchlists', level: 1 })).toBeVisible();
     });
 
-    test('should redirect /login to /dashboard when authenticated', async ({ page }) => {
+    test('should redirect /login to /watchlists when authenticated', async ({ page }) => {
       await page.goto('/login');
       
-      await expect(page).toHaveURL('/dashboard');
+      await expect(page).toHaveURL('/watchlists');
       // Mock watchlists API
       await page.route('**/watchlists', async (route) => {
         await route.fulfill({
@@ -130,15 +130,15 @@ test.describe('Route Guards', () => {
       await page.getByLabel('Password').fill('testpass');
       await page.getByRole('button', { name: 'Sign in' }).click();
       
-      await expect(page).toHaveURL('/dashboard');
+      await expect(page).toHaveURL('/watchlists');
       
       // Go to root
       await page.goto('/');
-      await expect(page).toHaveURL('/dashboard'); // Should redirect to dashboard
+      await expect(page).toHaveURL('/watchlists'); // Should redirect to watchlists
       
       // Use browser back button
       await page.goBack();
-      await expect(page).toHaveURL('/dashboard'); // Should stay on dashboard
+      await expect(page).toHaveURL('/watchlists'); // Should stay on watchlists
       
       // Logout
       await page.getByRole('button', { name: 'Sign out' }).click();
@@ -150,8 +150,8 @@ test.describe('Route Guards', () => {
     });
 
     test('should handle deep links correctly', async ({ page }) => {
-      // Try to access dashboard directly without auth
-      await page.goto('/dashboard?param=test');
+      // Try to access watchlists directly without auth
+      await page.goto('/watchlists?param=test');
       
       await expect(page).toHaveURL('/login');
       
@@ -172,8 +172,8 @@ test.describe('Route Guards', () => {
       await page.getByLabel('Password').fill('testpass');
       await page.getByRole('button', { name: 'Sign in' }).click();
       
-      // Should go to dashboard (note: query params may not be preserved in this simple implementation)
-      await expect(page).toHaveURL('/dashboard');
+      // Should go to watchlists (note: query params may not be preserved in this simple implementation)
+      await expect(page).toHaveURL('/watchlists');
     });
   });
 
@@ -198,13 +198,13 @@ test.describe('Route Guards', () => {
       await page.getByLabel('Password').fill('testpass');
       await page.getByRole('button', { name: 'Sign in' }).click();
       
-      await expect(page).toHaveURL('/dashboard');
+      await expect(page).toHaveURL('/watchlists');
       
       // Reload page
       await page.reload();
       
       // Should still be authenticated
-      await expect(page).toHaveURL('/dashboard');
+      await expect(page).toHaveURL('/watchlists');
       // Mock watchlists API
       await page.route('**/watchlists', async (route) => {
         await route.fulfill({
@@ -219,8 +219,8 @@ test.describe('Route Guards', () => {
       // Try to access login page
       await page.goto('/login');
       
-      // Should redirect to dashboard
-      await expect(page).toHaveURL('/dashboard');
+      // Should redirect to watchlists
+      await expect(page).toHaveURL('/watchlists');
     });
 
     test('should handle session cleared manually', async ({ page }) => {
@@ -243,13 +243,13 @@ test.describe('Route Guards', () => {
       await page.getByLabel('Password').fill('testpass');
       await page.getByRole('button', { name: 'Sign in' }).click();
       
-      await expect(page).toHaveURL('/dashboard');
+      await expect(page).toHaveURL('/watchlists');
       
       // Manually clear session from localStorage (simulating expired token cleanup)
       await page.evaluate(() => localStorage.removeItem('sessionToken'));
       
-      // Try to access dashboard
-      await page.goto('/dashboard');
+      // Try to access watchlists
+      await page.goto('/watchlists');
       
       // Should redirect to login
       await expect(page).toHaveURL('/login');
@@ -286,7 +286,7 @@ test.describe('Route Guards', () => {
       await page.getByLabel('Password').fill('testpass');
       await page.getByRole('button', { name: 'Sign in' }).click();
       
-      await expect(page).toHaveURL('/dashboard');
+      await expect(page).toHaveURL('/watchlists');
       
       // Now try invalid route
       await page.goto('/non-existent-route');

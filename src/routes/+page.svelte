@@ -5,7 +5,7 @@
 
   onMount(() => {
     if (auth.isAuthenticated) {
-      goto('/dashboard');
+      goto('/watchlists');
     } else {
       goto('/login');
     }
