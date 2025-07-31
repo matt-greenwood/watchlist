@@ -1,6 +1,6 @@
 <script lang="ts">
   import { auth } from '$lib/stores/auth.svelte.ts';
-  import CreateWatchlistModal from '$lib/components/CreateWatchlistModal.svelte';
+  import CreateWatchlistModal from '$lib/components/modals/CreateWatchlistModal.svelte';
 
   let showCreateModal = $state(false);
 

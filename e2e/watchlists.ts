@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Dashboard - Watchlists', () => {
+test.describe('Watchlists', () => {
   test.beforeEach(async ({ page }) => {
     // Clear localStorage before each test
     await page.goto('/');
@@ -26,7 +26,7 @@ test.describe('Dashboard - Watchlists', () => {
     await page.getByLabel('Password').fill('testpass');
     await page.getByRole('button', { name: 'Sign in' }).click();
     
-    await expect(page).toHaveURL('/dashboard');
+    await expect(page).toHaveURL('/watchlists');
   }
 
 

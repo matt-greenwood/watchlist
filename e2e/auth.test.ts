@@ -8,7 +8,7 @@ test.describe('Authentication Flow', () => {
   });
 
   test('should redirect unauthenticated user to login', async ({ page }) => {
-    await page.goto('/dashboard');
+    await page.goto('/watchlists');
     
     // Should redirect to login page
     await expect(page).toHaveURL('/login');
@@ -98,7 +98,7 @@ test.describe('Authentication Flow', () => {
     await page.getByLabel('Password').fill('testpass');
     await page.getByRole('button', { name: 'Sign in' }).click();
     
-    // Mock watchlists API for dashboard
+    // Mock watchlists API for watchlists
     await page.route('**/watchlists', async (route) => {
       await route.fulfill({
         status: 200,
@@ -107,13 +107,13 @@ test.describe('Authentication Flow', () => {
       });
     });
     
-    // Should redirect to dashboard
-    await expect(page).toHaveURL('/dashboard');
+    // Should redirect to watchlists
+    await expect(page).toHaveURL('/watchlists');
     await expect(page.getByRole('heading', { name: 'Watchlists', level: 1 })).toBeVisible();
     await expect(page.getByText('Your Watchlists')).toBeVisible();
   });
 
-  test('should display dashboard content after login', async ({ page }) => {
+  test('should display watchlists content after login', async ({ page }) => {
     // Set up authenticated state
     await page.goto('/login');
     await page.route('**/sessions', async route => {
@@ -140,7 +140,7 @@ test.describe('Authentication Flow', () => {
     await page.getByLabel('Password').fill('testpass');
     await page.getByRole('button', { name: 'Sign in' }).click();
     
-    await expect(page).toHaveURL('/dashboard');
+    await expect(page).toHaveURL('/watchlists');
     await expect(page.getByText('Your Watchlists')).toBeVisible();
     await expect(page.getByText('Manage and view your investment watchlists')).toBeVisible();
   });
@@ -166,7 +166,7 @@ test.describe('Authentication Flow', () => {
     await page.getByLabel('Password').fill('testpass');
     await page.getByRole('button', { name: 'Sign in' }).click();
     
-    await expect(page).toHaveURL('/dashboard');
+    await expect(page).toHaveURL('/watchlists');
     
     // Now logout
     await page.getByRole('button', { name: 'Sign out' }).click();
@@ -195,13 +195,13 @@ test.describe('Authentication Flow', () => {
     await page.getByLabel('Password').fill('testpass');
     await page.getByRole('button', { name: 'Sign in' }).click();
     
-    await expect(page).toHaveURL('/dashboard');
+    await expect(page).toHaveURL('/watchlists');
     
     // Reload the page
     await page.reload();
     
-    // Should still be on dashboard (token persisted)
-    // Mock watchlists for dashboard  
+    // Should still be on watchlists (token persisted)
+    // Mock watchlists for watchlists  
     await page.route('**/watchlists', async (route) => {
       await route.fulfill({
         status: 200,
@@ -210,7 +210,7 @@ test.describe('Authentication Flow', () => {
       });
     });
     
-    await expect(page).toHaveURL('/dashboard');
+    await expect(page).toHaveURL('/watchlists');
     await expect(page.getByRole('heading', { name: 'Watchlists', level: 1 })).toBeVisible();
   });
 
@@ -233,13 +233,13 @@ test.describe('Authentication Flow', () => {
     await page.getByLabel('Password').fill('testpass');
     await page.getByRole('button', { name: 'Sign in' }).click();
     
-    await expect(page).toHaveURL('/dashboard');
+    await expect(page).toHaveURL('/watchlists');
     
     // Try to go back to login page
     await page.goto('/login');
     
-    // Should redirect back to dashboard
-    await expect(page).toHaveURL('/dashboard');
+    // Should redirect back to watchlists
+    await expect(page).toHaveURL('/watchlists');
   });
 
 });

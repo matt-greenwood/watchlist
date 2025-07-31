@@ -13,7 +13,6 @@
   };
 </script>
 
-  
 <div class="space-y-6">
   <div>
     <h2 class="text-lg font-medium text-gray-900">Your Watchlists</h2>
