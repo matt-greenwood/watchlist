@@ -4,4 +4,4 @@
   export let data: PageData;
 </script>
 
-<div>Watchlist: {data.slug}</div>
+<div>Watchlist: {data.watchlistName}</div>
