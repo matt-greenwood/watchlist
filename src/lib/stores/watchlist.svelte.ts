@@ -1,7 +1,7 @@
 import { PUBLIC_TASTYTRADE_API_URL } from '$env/static/public';
 import { auth } from './auth.svelte.ts';
 import type { Watchlist } from '$lib/types/Watchlist.ts';
-import type { SearchResult } from '$lib/types/SearchResult.ts';
+import type { SymbolSearchResult } from '$lib/types/SymbolSearchResult.ts';
 
 class WatchlistStore {
   watchlists = $state<Watchlist[]>([]);
@@ -125,7 +125,7 @@ class WatchlistStore {
     }
   }
 
-  async searchSymbols(query: string): Promise<SearchResult[]> {
+  async searchSymbols(query: string): Promise<SymbolSearchResult[]> {
     if (!query.trim() || query.length < 1) {
       return [];
     }
