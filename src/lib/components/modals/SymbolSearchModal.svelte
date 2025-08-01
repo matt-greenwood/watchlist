@@ -1,5 +1,6 @@
 <script lang="ts">
   import Modal from './Modal.svelte';
+  import SymbolSearchAutocomplete from '$lib/components/SymbolSearchAutocomplete.svelte';
 
   interface Props {
     show: boolean;
@@ -8,10 +9,14 @@
   }
 
   let { show, watchlistName, onClose }: Props = $props();
-  let searchQuery = $state('');
+  let selectedSymbol = $state<string>('');
+
+  const handleSymbolSelect = (symbol: string) => {
+    selectedSymbol = symbol;
+  };
 
   const handleClose = () => {
-    searchQuery = '';
+    selectedSymbol = '';
     onClose();
   };
 </script>
@@ -24,18 +29,15 @@
           Add Symbol to {watchlistName}
         </h3>
         <div class="mt-4">
-          <label for="symbol-search" class="block text-sm font-medium leading-6 text-gray-900">
-            Search for a symbol
-          </label>
-          <div class="mt-2">
-            <input
-              id="symbol-search"
-              type="text"
-              placeholder="Type a symbol (e.g., AAPL, TSLA)"
-              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-              bind:value={searchQuery}
-            />
-          </div>
+          <SymbolSearchAutocomplete onSymbolSelect={handleSymbolSelect} />
+          
+          {#if selectedSymbol}
+            <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+              <p class="text-sm">
+                Selected: <span class="font-medium">{selectedSymbol}</span>
+              </p>
+            </div>
+          {/if}
         </div>
       </div>
     </div>
@@ -45,7 +47,7 @@
     <button
       type="button"
       class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
-      disabled
+      disabled={!selectedSymbol}
     >
       Add Symbol
     </button>

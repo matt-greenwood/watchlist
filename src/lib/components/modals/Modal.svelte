@@ -57,7 +57,7 @@
         aria-hidden="true"
       ></div>
       
-      <div bind:this={modalElement} class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+      <div bind:this={modalElement} class="relative transform rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
         {@render children()}
       </div>
     </div>

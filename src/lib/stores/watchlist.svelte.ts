@@ -147,10 +147,9 @@ class WatchlistStore {
       const data = await response.json();
       const rawResults = data.data?.items || [];
       
-      // Transform API response from kebab-case to camelCase
+      // Transform API response 
       return rawResults.map((result: any) => ({
         symbol: result.symbol,
-        instrumentType: result['instrument-type'],
         description: result.description
       }));
     } catch (err) {
