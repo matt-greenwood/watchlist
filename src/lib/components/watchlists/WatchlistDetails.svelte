@@ -31,7 +31,7 @@
   <div class="px-4 py-5 sm:px-6">
     <div class="flex items-center justify-between">
       <div>
-        <h3 class="text-lg font-medium leading-6 text-gray-900">Watchlist: {watchlistName}</h3>
+        <h3 class="text-lg font-medium leading-6 text-gray-900">{watchlistName}</h3>
       </div>
       <div>
         <button
