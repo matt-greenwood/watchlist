@@ -46,7 +46,7 @@
           Add Symbol to {watchlistName}
         </h3>
         <div class="mt-4">
-          <SymbolSearchAutocomplete onSymbolSelect={handleSymbolSelect} />
+          <SymbolSearchAutocomplete onSymbolSelect={handleSymbolSelect} onSubmit={handleAddSymbol} />
           
           {#if selectedSymbol}
             <div class="mt-3 p-3 bg-blue-50 rounded-lg">

@@ -4,9 +4,10 @@
 
   interface Props {
     onSymbolSelect: (symbol: string) => void;
+    onSubmit?: () => void;
   }
 
-  let { onSymbolSelect }: Props = $props();
+  let { onSymbolSelect, onSubmit }: Props = $props();
   let searchQuery = $state('');
   let searchResults = $state<SymbolSearchResult[]>([]);
   let isSearching = $state(false);
@@ -86,6 +87,11 @@
     }
 
     if (!showResults || searchResults.length === 0) {
+      // If options panel is closed but there's a selection and user hits ENTER, submit form
+      if (e.key === 'Enter' && hasSelection && onSubmit) {
+        e.preventDefault();
+        onSubmit();
+      }
       return;
     }
 

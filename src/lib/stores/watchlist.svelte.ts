@@ -2,6 +2,7 @@ import { PUBLIC_TASTYTRADE_API_URL } from '$env/static/public';
 import { auth } from './auth.svelte.ts';
 import type { Watchlist } from '$lib/types/Watchlist.ts';
 import type { SymbolSearchResult } from '$lib/types/SymbolSearchResult.ts';
+import type { MarketData } from '$lib/types/MarketData.ts';
 
 class WatchlistStore {
   watchlists = $state<Watchlist[]>([]);
@@ -265,6 +266,38 @@ class WatchlistStore {
     const updatedEntries = currentWatchlist.watchlistEntries.filter(entry => entry.symbol !== symbol);
 
     return this.updateWatchlistEntries(watchlistName, updatedEntries, 'remove');
+  }
+
+  async fetchMarketData(symbol: string): Promise<MarketData | null> {
+    if (!auth.isAuthenticated) {
+      this.error = 'Not authenticated';
+      return null;
+    }
+
+    if (!symbol.trim()) {
+      return null;
+    }
+
+    try {
+      const response = await auth.authenticatedFetch(
+        `${PUBLIC_TASTYTRADE_API_URL}/market-data/${encodeURIComponent(symbol.trim())}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch market data for ${symbol}: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return {
+        symbol: data.data.symbol,
+        bidPrice: data.data.bid,
+        askPrice: data.data.ask,
+        lastPrice: data.data.last
+      };
+    } catch (err) {
+      console.error(`Error fetching market data for ${symbol}:`, err);
+      return null;
+    }
   }
 
   clearError() {

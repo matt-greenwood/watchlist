@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { watchlistStore } from '$lib/stores/watchlist.svelte';
   import { goto } from '$app/navigation';
   import DeleteWatchlistConfirmationModal from '$lib/components/modals/DeleteWatchlistConfirmationModal.svelte';
   import RemoveSymbolConfirmationModal from '$lib/components/modals/RemoveSymbolConfirmationModal.svelte';
   import SymbolSearchModal from '$lib/components/modals/SymbolSearchModal.svelte';
+  import MarketDataTable from './MarketDataTable.svelte';
 
   interface Props {
     watchlistName: string;
@@ -14,6 +16,13 @@
   let showAddSymbolModal = $state(false);
   let showRemoveSymbolModal = $state(false);
   let symbolToRemove = $state('');
+  
+  // Fetch watchlists on mount to ensure data is available
+  onMount(() => {
+    if (watchlistStore.watchlists.length === 0) {
+      watchlistStore.fetchWatchlists();
+    }
+  });
   
   // Get the current watchlist data
   const currentWatchlist = $derived(watchlistStore.watchlists.find(w => w.name === watchlistName));
@@ -59,6 +68,9 @@
     showRemoveSymbolModal = false;
     symbolToRemove = '';
   };
+
+  // Get symbols list for the table
+  const symbols = $derived(currentWatchlist?.watchlistEntries?.map(entry => entry.symbol) || []);
 </script>
 
 <div class="bg-white shadow">
@@ -87,30 +99,13 @@
   </div>
 </div>
 
-<!-- Symbols List -->
+<!-- Symbols Table -->
 <div class="mt-6 bg-white shadow">
   <div class="px-4 py-5 sm:p-6">
     <h4 class="text-base font-medium text-gray-900 mb-4">Symbols</h4>
     
-    {#if currentWatchlist?.watchlistEntries && currentWatchlist.watchlistEntries.length > 0}
-      <div class="grid gap-3">
-        {#each currentWatchlist.watchlistEntries as entry}
-          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <div>
-              <span class="font-medium text-gray-900">{entry.symbol}</span>
-            </div>
-            <div>
-              <button
-                type="button"
-                class="text-sm font-medium text-red-600 hover:text-red-500 cursor-pointer"
-                onclick={() => handleRemoveSymbolClick(entry.symbol)}
-              >
-                Remove
-              </button>
-            </div>
-          </div>
-        {/each}
-      </div>
+    {#if symbols.length > 0}
+      <MarketDataTable {symbols} onRemove={handleRemoveSymbolClick} />
     {:else}
       <div class="text-center py-8">
         <p class="text-gray-500 text-sm">No symbols in this watchlist yet.</p>
