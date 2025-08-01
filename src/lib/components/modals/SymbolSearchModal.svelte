@@ -1,6 +1,7 @@
 <script lang="ts">
   import Modal from './Modal.svelte';
   import SymbolSearchAutocomplete from '$lib/components/SymbolSearchAutocomplete.svelte';
+  import { watchlistStore } from '$lib/stores/watchlist.svelte.ts';
 
   interface Props {
     show: boolean;
@@ -10,6 +11,7 @@
 
   let { show, watchlistName, onClose }: Props = $props();
   let selectedSymbol = $state<string>('');
+  let isAdding = $state(false);
 
   const handleSymbolSelect = (symbol: string) => {
     selectedSymbol = symbol;
@@ -17,7 +19,22 @@
 
   const handleClose = () => {
     selectedSymbol = '';
+    watchlistStore.clearError();
     onClose();
+  };
+
+  const handleAddSymbol = async () => {
+    if (!selectedSymbol) return;
+    
+    isAdding = true;
+    const success = await watchlistStore.addSymbolToWatchlist(watchlistName, selectedSymbol);
+    
+    if (success) {
+      selectedSymbol = '';
+      onClose();
+    }
+    
+    isAdding = false;
   };
 </script>
 
@@ -38,6 +55,14 @@
               </p>
             </div>
           {/if}
+          
+          {#if watchlistStore.error}
+            <div class="mt-3 p-3 bg-red-50 rounded-lg">
+              <p class="text-sm text-red-600">
+                {watchlistStore.error}
+              </p>
+            </div>
+          {/if}
         </div>
       </div>
     </div>
@@ -46,15 +71,21 @@
   <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
     <button
       type="button"
+      onclick={handleAddSymbol}
       class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
-      disabled={!selectedSymbol}
+      disabled={!selectedSymbol || isAdding}
     >
-      Add Symbol
+      {#if isAdding}
+        Adding...
+      {:else}
+        Add Symbol
+      {/if}
     </button>
     <button
       type="button"
-      class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+      class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
       onclick={handleClose}
+      disabled={isAdding}
     >
       Cancel
     </button>
