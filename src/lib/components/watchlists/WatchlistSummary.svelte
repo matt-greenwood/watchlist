@@ -2,7 +2,7 @@
   import type { Watchlist } from '$lib/types/Watchlist';
   import { goto } from '$app/navigation';
   import { watchlistStore } from '$lib/stores/watchlist.svelte';
-  import DeleteConfirmationModal from '$lib/components/modals/DeleteConfirmationModal.svelte';
+  import DeleteWatchlistConfirmationModal from '$lib/components/modals/DeleteWatchlistConfirmationModal.svelte';
 
   interface Props {
     watchlist: Watchlist;
@@ -60,7 +60,7 @@
   </div>
 </li>
 
-<DeleteConfirmationModal
+<DeleteWatchlistConfirmationModal
   show={showDeleteModal}
   watchlistName={watchlist.name}
   onConfirm={handleDeleteConfirm}

@@ -159,42 +159,8 @@ class WatchlistStore {
     }
   }
 
-  async addSymbolToWatchlist(watchlistName: string, symbol: string) {
-    if (!auth.isAuthenticated) {
-      this.error = 'Not authenticated';
-      return false;
-    }
-
-    if (!watchlistName.trim() || !symbol.trim()) {
-      this.error = 'Watchlist name and symbol are required';
-      return false;
-    }
-
-    this.error = null;
-
+  private async updateWatchlistEntries(watchlistName: string, updatedEntries: any[], operation: string) {
     try {
-      // Find the current watchlist
-      console.log('watchlistName', watchlistName);
-      console.log('watchlists', this.watchlists);
-      const currentWatchlist = this.watchlists.find(w => w.name === watchlistName);
-      if (!currentWatchlist) {
-        this.error = 'Watchlist not found';
-        return false;
-      }
-
-      // Check if symbol already exists
-      const symbolExists = currentWatchlist.watchlistEntries.some(entry => entry.symbol === symbol);
-      if (symbolExists) {
-        this.error = 'Symbol already exists in watchlist';
-        return false;
-      }
-
-      // Create updated entries list
-      const updatedEntries = [
-        ...currentWatchlist.watchlistEntries,
-        { symbol: symbol.trim(), instrumentType: 'Unknown' }
-      ];
-
       // Send PUT request to update watchlist
       const response = await auth.authenticatedFetch(`${PUBLIC_TASTYTRADE_API_URL}/watchlists/${encodeURIComponent(watchlistName)}`, {
         method: 'PUT',
@@ -211,7 +177,7 @@ class WatchlistStore {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `Failed to add symbol: ${response.status}`);
+        throw new Error(errorData.error?.message || `Failed to ${operation} symbol: ${response.status}`);
       }
 
       // Update local state
@@ -225,11 +191,80 @@ class WatchlistStore {
 
       return true;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to add symbol';
+      const errorMessage = err instanceof Error ? err.message : `Failed to ${operation} symbol`;
       this.error = errorMessage;
-      console.error('Error adding symbol:', err);
+      console.error(`Error ${operation} symbol:`, err);
       return false;
     }
+  }
+
+  async addSymbolToWatchlist(watchlistName: string, symbol: string) {
+    if (!auth.isAuthenticated) {
+      this.error = 'Not authenticated';
+      return false;
+    }
+
+    if (!watchlistName.trim() || !symbol.trim()) {
+      this.error = 'Watchlist name and symbol are required';
+      return false;
+    }
+
+    this.error = null;
+
+    // Find the current watchlist
+    const currentWatchlist = this.watchlists.find(w => w.name === watchlistName);
+    if (!currentWatchlist) {
+      this.error = 'Watchlist not found';
+      return false;
+    }
+
+    // Check if symbol already exists
+    const symbolExists = currentWatchlist.watchlistEntries.some(entry => entry.symbol === symbol);
+    if (symbolExists) {
+      this.error = 'Symbol already exists in watchlist';
+      return false;
+    }
+
+    // Create updated entries list
+    const updatedEntries = [
+      ...currentWatchlist.watchlistEntries,
+      { symbol: symbol.trim(), instrumentType: 'Unknown' }
+    ];
+
+    return this.updateWatchlistEntries(watchlistName, updatedEntries, 'add');
+  }
+
+  async removeSymbolFromWatchlist(watchlistName: string, symbol: string) {
+    if (!auth.isAuthenticated) {
+      this.error = 'Not authenticated';
+      return false;
+    }
+
+    if (!watchlistName.trim() || !symbol.trim()) {
+      this.error = 'Watchlist name and symbol are required';
+      return false;
+    }
+
+    this.error = null;
+
+    // Find the current watchlist
+    const currentWatchlist = this.watchlists.find(w => w.name === watchlistName);
+    if (!currentWatchlist) {
+      this.error = 'Watchlist not found';
+      return false;
+    }
+
+    // Check if symbol exists
+    const symbolExists = currentWatchlist.watchlistEntries.some(entry => entry.symbol === symbol);
+    if (!symbolExists) {
+      this.error = 'Symbol not found in watchlist';
+      return false;
+    }
+
+    // Create updated entries list with symbol removed
+    const updatedEntries = currentWatchlist.watchlistEntries.filter(entry => entry.symbol !== symbol);
+
+    return this.updateWatchlistEntries(watchlistName, updatedEntries, 'remove');
   }
 
   clearError() {

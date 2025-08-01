@@ -1,7 +1,8 @@
 <script lang="ts">
   import { watchlistStore } from '$lib/stores/watchlist.svelte';
   import { goto } from '$app/navigation';
-  import DeleteConfirmationModal from '$lib/components/modals/DeleteConfirmationModal.svelte';
+  import DeleteWatchlistConfirmationModal from '$lib/components/modals/DeleteWatchlistConfirmationModal.svelte';
+  import RemoveSymbolConfirmationModal from '$lib/components/modals/RemoveSymbolConfirmationModal.svelte';
   import SymbolSearchModal from '$lib/components/modals/SymbolSearchModal.svelte';
 
   interface Props {
@@ -11,6 +12,8 @@
   let { watchlistName }: Props = $props();
   let showDeleteModal = $state(false);
   let showAddSymbolModal = $state(false);
+  let showRemoveSymbolModal = $state(false);
+  let symbolToRemove = $state('');
   
   // Get the current watchlist data
   const currentWatchlist = $derived(watchlistStore.watchlists.find(w => w.name === watchlistName));
@@ -37,6 +40,24 @@
 
   const handleDeleteCancel = () => {
     showDeleteModal = false;
+  };
+
+  const handleRemoveSymbolClick = (symbol: string) => {
+    symbolToRemove = symbol;
+    showRemoveSymbolModal = true;
+  };
+
+  const handleRemoveSymbolConfirm = async () => {
+    const success = await watchlistStore.removeSymbolFromWatchlist(watchlistName, symbolToRemove);
+    if (success) {
+      showRemoveSymbolModal = false;
+      symbolToRemove = '';
+    }
+  };
+
+  const handleRemoveSymbolCancel = () => {
+    showRemoveSymbolModal = false;
+    symbolToRemove = '';
   };
 </script>
 
@@ -78,6 +99,15 @@
             <div>
               <span class="font-medium text-gray-900">{entry.symbol}</span>
             </div>
+            <div>
+              <button
+                type="button"
+                class="text-sm font-medium text-red-600 hover:text-red-500 cursor-pointer"
+                onclick={() => handleRemoveSymbolClick(entry.symbol)}
+              >
+                Remove
+              </button>
+            </div>
           </div>
         {/each}
       </div>
@@ -90,12 +120,20 @@
   </div>
 </div>
 
-<DeleteConfirmationModal
+<DeleteWatchlistConfirmationModal
   show={showDeleteModal}
   {watchlistName}
   onConfirm={handleDeleteConfirm}
   onCancel={handleDeleteCancel}
   isDeleting={watchlistStore.isDeleting}
+/>
+
+<RemoveSymbolConfirmationModal
+  show={showRemoveSymbolModal}
+  symbol={symbolToRemove}
+  {watchlistName}
+  onConfirm={handleRemoveSymbolConfirm}
+  onCancel={handleRemoveSymbolCancel}
 />
 
 <SymbolSearchModal

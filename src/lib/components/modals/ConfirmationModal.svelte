@@ -3,13 +3,16 @@
 
   interface Props {
     show: boolean;
-    watchlistName: string;
+    title: string;
+    message: string;
+    confirmText: string;
+    confirmingText: string;
     onConfirm: () => void;
     onCancel: () => void;
-    isDeleting?: boolean;
+    isConfirming?: boolean;
   }
 
-  let { show, watchlistName, onConfirm, onCancel, isDeleting = false }: Props = $props();
+  let { show, title, message, confirmText, confirmingText, onConfirm, onCancel, isConfirming = false }: Props = $props();
 </script>
 
 <Modal {show} onClose={onCancel}>
@@ -21,10 +24,10 @@
         </svg>
       </div>
       <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-        <h3 class="text-base font-semibold leading-6 text-gray-900">Delete Watchlist</h3>
+        <h3 class="text-base font-semibold leading-6 text-gray-900">{title}</h3>
         <div class="mt-2">
           <p class="text-sm text-gray-500">
-            Are you sure you want to delete "<strong>{watchlistName}</strong>"? This action cannot be undone.
+            {@html message}
           </p>
         </div>
       </div>
@@ -35,15 +38,15 @@
       type="button"
       class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto disabled:opacity-50"
       onclick={onConfirm}
-      disabled={isDeleting}
+      disabled={isConfirming}
     >
-      {isDeleting ? 'Deleting...' : 'Delete'}
+      {isConfirming ? confirmingText : confirmText}
     </button>
     <button
       type="button"
       class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
       onclick={onCancel}
-      disabled={isDeleting}
+      disabled={isConfirming}
     >
       Cancel
     </button>
