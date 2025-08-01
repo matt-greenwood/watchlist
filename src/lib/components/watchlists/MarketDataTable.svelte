@@ -5,9 +5,10 @@
   interface Props {
     symbols: string[];
     onRemove: (symbol: string) => void;
+    onLastUpdated?: (timestamp: Date) => void;
   }
 
-  let { symbols, onRemove }: Props = $props();
+  let { symbols, onRemove, onLastUpdated }: Props = $props();
   let marketDataMap = $state(new Map<string, MarketData>());
 
   const loadingIndicator = 'Loading...';
@@ -32,6 +33,7 @@
     }
     
     marketDataMap = newMarketDataMap;
+    onLastUpdated?.(new Date());
   };
 
   $effect(() => {

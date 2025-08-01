@@ -16,6 +16,7 @@
   let showAddSymbolModal = $state(false);
   let showRemoveSymbolModal = $state(false);
   let symbolToRemove = $state('');
+  let lastUpdated = $state<Date | null>(null);
   
   // Fetch watchlists on mount to ensure data is available
   onMount(() => {
@@ -71,6 +72,20 @@
 
   // Get symbols list for the table
   const symbols = $derived(currentWatchlist?.watchlistEntries?.map(entry => entry.symbol) || []);
+
+  const handleLastUpdated = (timestamp: Date) => {
+    lastUpdated = timestamp;
+  };
+
+  const formatLastUpdated = (date: Date | null): string => {
+    if (!date) return '';
+    return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit',
+      hour12: true 
+    });
+  };
 </script>
 
 <div class="bg-white shadow">
@@ -102,10 +117,15 @@
 <!-- Symbols Table -->
 <div class="mt-6 bg-white shadow">
   <div class="px-4 py-5 sm:p-6">
-    <h4 class="text-base font-medium text-gray-900 mb-4">Symbols</h4>
+    <div class="flex items-center justify-between mb-4">
+      <h4 class="text-base font-medium text-gray-900">Symbols</h4>
+      {#if lastUpdated && symbols.length > 0}
+        <span class="text-sm text-gray-500">Last updated: {formatLastUpdated(lastUpdated)}</span>
+      {/if}
+    </div>
     
     {#if symbols.length > 0}
-      <MarketDataTable {symbols} onRemove={handleRemoveSymbolClick} />
+      <MarketDataTable {symbols} onRemove={handleRemoveSymbolClick} onLastUpdated={handleLastUpdated} />
     {:else}
       <div class="text-center py-8">
         <p class="text-gray-500 text-sm">No symbols in this watchlist yet.</p>
