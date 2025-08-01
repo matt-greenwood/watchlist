@@ -8,6 +8,16 @@
   let { show, onClose, children }: Props = $props();
   let modalElement = $state<HTMLDivElement>();
 
+  $effect(() => {
+    if (show && modalElement) {
+      // Focus the first input element when modal opens
+      setTimeout(() => {
+        const firstInput = modalElement?.querySelector('input') as HTMLInputElement;
+        firstInput?.focus();
+      }, 100);
+    }
+  });
+
   function handleKeydown(e: KeyboardEvent) {
     if (e.key === 'Escape') {
       onClose();
