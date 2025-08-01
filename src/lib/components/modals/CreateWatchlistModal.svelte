@@ -9,7 +9,6 @@
 
   let { show, onClose }: Props = $props();
   let newWatchlistName = $state('');
-  let inputElement: HTMLInputElement;
 
   async function handleCreateWatchlist() {
     const success = await watchlistStore.createWatchlist(newWatchlistName);
@@ -33,8 +32,6 @@
     if (show) {
       watchlistStore.clearError();
       newWatchlistName = '';
-      // Focus the input when modal opens
-      setTimeout(() => inputElement?.focus(), 100);
     }
   });
 </script>
@@ -51,7 +48,6 @@
               <input
                 type="text"
                 id="watchlist-name"
-                bind:this={inputElement}
                 bind:value={newWatchlistName}
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                 placeholder="Enter watchlist name"

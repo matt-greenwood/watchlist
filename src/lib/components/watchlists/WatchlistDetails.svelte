@@ -2,6 +2,7 @@
   import { watchlistStore } from '$lib/stores/watchlist.svelte';
   import { goto } from '$app/navigation';
   import DeleteConfirmationModal from '$lib/components/modals/DeleteConfirmationModal.svelte';
+  import SymbolSearchModal from '$lib/components/modals/SymbolSearchModal.svelte';
 
   interface Props {
     watchlistName: string;
@@ -9,6 +10,15 @@
 
   let { watchlistName }: Props = $props();
   let showDeleteModal = $state(false);
+  let showAddSymbolModal = $state(false);
+
+  const handleAddSymbolClick = () => {
+    showAddSymbolModal = true;
+  };
+
+  const handleAddSymbolClose = () => {
+    showAddSymbolModal = false;
+  };
 
   const handleDeleteClick = () => {
     showDeleteModal = true;
@@ -33,7 +43,14 @@
       <div>
         <h3 class="text-lg font-medium leading-6 text-gray-900">{watchlistName}</h3>
       </div>
-      <div>
+      <div class="flex gap-3">
+        <button
+          type="button"
+          class="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+          onclick={handleAddSymbolClick}
+        >
+          Add Symbol
+        </button>
         <button
           type="button"
           class="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
@@ -52,4 +69,10 @@
   onConfirm={handleDeleteConfirm}
   onCancel={handleDeleteCancel}
   isDeleting={watchlistStore.isDeleting}
+/>
+
+<SymbolSearchModal
+  show={showAddSymbolModal}
+  {watchlistName}
+  onClose={handleAddSymbolClose}
 />

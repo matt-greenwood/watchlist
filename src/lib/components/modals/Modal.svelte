@@ -8,6 +8,16 @@
   let { show, onClose, children }: Props = $props();
   let modalElement = $state<HTMLDivElement>();
 
+  $effect(() => {
+    if (show && modalElement) {
+      // Focus the first input element when modal opens
+      setTimeout(() => {
+        const firstInput = modalElement?.querySelector('input') as HTMLInputElement;
+        firstInput?.focus();
+      }, 100);
+    }
+  });
+
   function handleKeydown(e: KeyboardEvent) {
     if (e.key === 'Escape') {
       onClose();
@@ -47,7 +57,7 @@
         aria-hidden="true"
       ></div>
       
-      <div bind:this={modalElement} class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+      <div bind:this={modalElement} class="relative transform rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
         {@render children()}
       </div>
     </div>
