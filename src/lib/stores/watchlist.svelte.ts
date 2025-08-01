@@ -1,6 +1,7 @@
 import { PUBLIC_TASTYTRADE_API_URL } from '$env/static/public';
 import { auth } from './auth.svelte.ts';
 import type { Watchlist } from '$lib/types/Watchlist.ts';
+import type { SearchResult } from '$lib/types/SearchResult.ts';
 
 class WatchlistStore {
   watchlists = $state<Watchlist[]>([]);
@@ -121,6 +122,41 @@ class WatchlistStore {
       return false;
     } finally {
       this.isDeleting = false;
+    }
+  }
+
+  async searchSymbols(query: string): Promise<SearchResult[]> {
+    if (!query.trim() || query.length < 1) {
+      return [];
+    }
+
+    if (!auth.isAuthenticated) {
+      this.error = 'Not authenticated';
+      return [];
+    }
+
+    try {
+      const response = await auth.authenticatedFetch(
+        `${PUBLIC_TASTYTRADE_API_URL}/symbols/search/${encodeURIComponent(query.trim())}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Search failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const rawResults = data.data?.items || [];
+      
+      // Transform API response from kebab-case to camelCase
+      return rawResults.map((result: any) => ({
+        symbol: result.symbol,
+        instrumentType: result['instrument-type'],
+        description: result.description
+      }));
+    } catch (err) {
+      console.error('Error searching symbols:', err);
+      this.error = err instanceof Error ? err.message : 'Failed to search symbols';
+      return [];
     }
   }
 
