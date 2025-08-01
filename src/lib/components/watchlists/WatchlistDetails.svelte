@@ -11,6 +11,9 @@
   let { watchlistName }: Props = $props();
   let showDeleteModal = $state(false);
   let showAddSymbolModal = $state(false);
+  
+  // Get the current watchlist data
+  const currentWatchlist = $derived(watchlistStore.watchlists.find(w => w.name === watchlistName));
 
   const handleAddSymbolClick = () => {
     showAddSymbolModal = true;
@@ -60,6 +63,30 @@
         </button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Symbols List -->
+<div class="mt-6 bg-white shadow">
+  <div class="px-4 py-5 sm:p-6">
+    <h4 class="text-base font-medium text-gray-900 mb-4">Symbols</h4>
+    
+    {#if currentWatchlist?.watchlistEntries && currentWatchlist.watchlistEntries.length > 0}
+      <div class="grid gap-3">
+        {#each currentWatchlist.watchlistEntries as entry}
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div>
+              <span class="font-medium text-gray-900">{entry.symbol}</span>
+            </div>
+          </div>
+        {/each}
+      </div>
+    {:else}
+      <div class="text-center py-8">
+        <p class="text-gray-500 text-sm">No symbols in this watchlist yet.</p>
+        <p class="text-gray-400 text-xs mt-1">Click "Add Symbol" to get started.</p>
+      </div>
+    {/if}
   </div>
 </div>
 
