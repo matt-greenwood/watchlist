@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { watchlistStore } from '$lib/stores/watchlist.svelte';
   import { goto } from '$app/navigation';
   import DeleteWatchlistConfirmationModal from '$lib/components/modals/DeleteWatchlistConfirmationModal.svelte';
@@ -15,6 +16,13 @@
   let showAddSymbolModal = $state(false);
   let showRemoveSymbolModal = $state(false);
   let symbolToRemove = $state('');
+  
+  // Fetch watchlists on mount to ensure data is available
+  onMount(() => {
+    if (watchlistStore.watchlists.length === 0) {
+      watchlistStore.fetchWatchlists();
+    }
+  });
   
   // Get the current watchlist data
   const currentWatchlist = $derived(watchlistStore.watchlists.find(w => w.name === watchlistName));
