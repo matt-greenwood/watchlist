@@ -40,7 +40,7 @@
           {watchlist.watchlistEntries.length} symbol{watchlist.watchlistEntries.length !== 1 ? 's' : ''}
         </div>
       </div>
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center space-x-5">
         <button
           type="button"
           class="text-sm font-medium text-blue-600 hover:text-blue-500 cursor-pointer"
