@@ -14,12 +14,6 @@
     searchQuery = '';
     onClose();
   };
-
-  $effect(() => {
-    if (show) {
-      searchQuery = '';
-    }
-  });
 </script>
 
 <Modal {show} onClose={handleClose}>
