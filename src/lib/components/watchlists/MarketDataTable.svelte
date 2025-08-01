@@ -12,6 +12,13 @@
 
   const loadingIndicator = 'Loading...';
 
+  const formatPrice = (price: string | undefined): string => {
+    if (!price) return loadingIndicator;
+    const numPrice = parseFloat(price);
+    if (isNaN(numPrice)) return price;
+    return `$${numPrice.toFixed(2)}`;
+  };
+
   const loadMarketData = async () => {
     if (!symbols.length) return;
     
@@ -30,6 +37,14 @@
   $effect(() => {
     if (symbols.length > 0) {
       loadMarketData();
+      
+      const interval = setInterval(() => {
+        loadMarketData();
+      }, 5000);
+      
+      return () => {
+        clearInterval(interval);
+      };
     }
   });
 </script>
@@ -64,13 +79,13 @@
               {symbol}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {marketData?.bidPrice ?? loadingIndicator}
+              {formatPrice(marketData?.bidPrice)}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {marketData?.askPrice ?? loadingIndicator}
+              {formatPrice(marketData?.askPrice)}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {marketData?.lastPrice ?? loadingIndicator}
+              {formatPrice(marketData?.lastPrice)}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <button
