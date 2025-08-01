@@ -1,6 +1,8 @@
 <script lang="ts">
   import { watchlistStore } from '$lib/stores/watchlist.svelte.ts';
   import Modal from './Modal.svelte';
+  import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
 
   interface Props {
     show: boolean;
@@ -13,8 +15,14 @@
   async function handleCreateWatchlist() {
     const success = await watchlistStore.createWatchlist(newWatchlistName);
     if (success) {
+      const watchlistName = newWatchlistName.trim();
       newWatchlistName = '';
       onClose();
+      
+      // Navigate to the new watchlist unless we're on the main watchlists page
+      if ($page.route.id !== '/(protected)/watchlists') {
+        goto(`/watchlists/${encodeURIComponent(watchlistName)}`);
+      }
     }
   }
 
